@@ -1,18 +1,33 @@
+# Linux Manuals Collection
 
 ---
-## Question Format Example (Disregard Data)
+
+- A collection of beginner-friendly Linux manuals written in plain text. Each guide follows a consistent, readable format and focuses on **practical usage**, **system optimization**, and clear **command examples**.
+---
+
+### Included Manuals
+
+- **System Management** – Fedora setup, diagnostics, Cockpit, Tmux, Vim
+    
+- **Security & Hardening** – Firewalld, Fail2Ban, SELinux, LUKS encryption
+    
+- **Performance Tuning** – Cpupower, Tuned, and system optimization guides
+    
+- **Networking & Analysis** – Tcpdump, firewall configuration
+    
+- **Storage & Compression** – Tar and server compression tools
+    
+- **Development Tools** – Git basics, Docker Compose fundamentals
 
 ---
 
-1. A city ordinance base procession of "ritual hallucinogens" with no examples. A judge taking a positivist approach should first ask:
+---
 
-		**A. Whether most residents find the individual offensive.**
-		
-		**B. Whether the ordinance, as duly enacted, in fact prohibits the substance with no applicable exemption.**
-		
-		**C. Whether the claimants practice is central to their faith.**
-		
-		**D. Whether other cities allow the practice**
+**Author:** Andrew Arabian  
+**School:** California State University, Northridge (CSUN)
+
+---
+
 
 
 
