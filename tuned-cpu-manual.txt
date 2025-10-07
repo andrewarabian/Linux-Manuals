@@ -6,7 +6,7 @@
 ----------------
     tmux lets you manage multiple terminal sessions inside one shell
     window. You can disconnect (detach) from a session without stopping
-    the processes inside it — perfect for running Minecraft servers,
+    the processes inside it, perfect for running services in the background,
     build scripts, or persistent monitoring tools.
 
 ======================================================================
