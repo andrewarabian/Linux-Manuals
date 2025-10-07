@@ -2,11 +2,6 @@
   COCKPIT MANUAL
 ======================================================================
 
-A beginner-friendly guide to installing, enabling, and managing
-the Cockpit web-based Linux administration interface.
-
-======================================================================
-
 1. INSTALLATION & ENABLEMENT
 ----------------
     Fedora / RHEL / CentOS:
