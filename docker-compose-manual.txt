@@ -2,12 +2,6 @@
   DOCKER COMPOSE TROUBLESHOOTING MANUAL
 ======================================================================
 
-A hands-on guide for diagnosing and fixing common Docker Compose issues
-such as permission errors, missing environment variables, networking
-problems, and SELinux access denials.
-
-======================================================================
-
 1. FIXING FILE PERMISSION ISSUES (UID/GID MATCHING)
 ----------------
 Problem:
