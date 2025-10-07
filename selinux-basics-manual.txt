@@ -11,7 +11,7 @@ commands, troubleshooting, and best practices for secure configurations.
 1. INTRODUCTION
 ----------------
     SELinux (Security-Enhanced Linux) is a Mandatory Access Control (MAC)
-    system designed to enforce least-privilege security policies, even for root.
+    system designed for the N.S.A to enforce least-privilege security policies, even for root.
 
     - Built into RHEL, Fedora, Rocky, and AlmaLinux.
     - Prevents unauthorized actions and exploits.
