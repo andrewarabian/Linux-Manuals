@@ -2,12 +2,6 @@
   VIM BEGINNERS MANUAL
 ======================================================================
 
-A concise introduction to using Vim — a powerful text editor built into
-nearly every Linux distribution. Learn how to edit, save, and exit files
-with essential command shortcuts.
-
-======================================================================
-
 1. MODES IN VIM
 ----------------
     Vim has multiple modes. The two most important are:
