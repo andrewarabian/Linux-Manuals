@@ -2,11 +2,6 @@
   CPUPOWER OPTIMIZATIONS MANUAL
 ======================================================================
 
-A beginner-friendly guide to tuning CPU governors, frequencies,
-and power states for performance or efficiency on Linux systems.
-
-======================================================================
-
 1. GOVERNORS
 ----------------
     Governors decide how your CPU frequency changes based on system load.
