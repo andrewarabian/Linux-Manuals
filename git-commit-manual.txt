@@ -1,0 +1,113 @@
+======================================================================
+  GIT MANUAL FOR BEGINNERS
+======================================================================
+
+1. INSTALLATION & SETUP
+----------------
+    Fedora / RHEL / CentOS:
+        sudo dnf install -y git
+
+    Debian / Ubuntu:
+        sudo apt install -y git
+
+    macOS (Homebrew):
+        brew install git
+
+    Windows:
+        Download from: https://git-scm.com/downloads
+
+    Configure your identity:
+        git config --global user.name "Your Name"
+        git config --global user.email "you@example.com"
+
+    Verify configuration:
+        git config --list
+
+======================================================================
+
+2. INITIALIZING A REPOSITORY
+----------------
+    Start tracking your project folder:
+        cd /path/to/your/project
+        git init
+
+    This creates a .git directory that tracks changes.
+
+    Check current status:
+        git status
+
+======================================================================
+
+3. STAGING & COMMITTING
+----------------
+    Add files to staging (prepare them for commit):
+        git add <filename>
+        git add .          (adds all files)
+
+    Save a snapshot of changes:
+        git commit -m "Describe what you did"
+
+    View commit history:
+        git log --oneline
+
+======================================================================
+
+4. CONNECTING TO GITHUB
+----------------
+    Authenticate using GitHub CLI:
+        gh auth login
+
+    Create a new repository on GitHub:
+        gh repo create --source=. --public --push
+
+    Or connect to an existing GitHub repo:
+        git remote add origin https://github.com/username/repo.git
+        git branch -M main
+        git push -u origin main
+
+======================================================================
+
+5. BASIC WORKFLOW
+----------------
+    Everyday routine:
+        git status                (check for changes)
+        git add .                 (stage changes)
+        git commit -m "message"   (save changes)
+        git push                  (upload to GitHub)
+
+    To get updates from GitHub:
+        git pull
+
+======================================================================
+
+6. TROUBLESHOOTING
+----------------
+    Check repository connection:
+        git remote -v
+
+    Rename main branch if needed:
+        git branch -M main
+
+    Fix push errors:
+        git push -u origin main
+
+    If authentication fails:
+        gh auth login
+
+======================================================================
+
+7. TIPS & NOTES
+----------------
+    - Use short, meaningful commit messages.
+    - `git status` is your best friend — check it often.
+    - Create `.gitignore` to skip unwanted files.
+    - Git is local first — nothing goes online until you push.
+    - Learn to use branches for experiments:
+          git checkout -b new-feature
+          git checkout main
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+
