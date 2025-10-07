@@ -2,13 +2,6 @@
   TMUX MANUAL
 ======================================================================
 
-A beginner-friendly guide to tmux — the terminal multiplexer that allows
-you to run multiple persistent shell sessions within a single terminal
-or SSH connection. Ideal for servers, long-running processes, and
-multitasking environments.
-
-======================================================================
-
 1. INTRODUCTION
 ----------------
     tmux lets you manage multiple terminal sessions inside one shell
