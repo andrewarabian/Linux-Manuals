@@ -1,113 +1,176 @@
 ======================================================================
-  TMUX MANUAL
+  TUNED & TUNED-UTILS MANUAL (RHEL / FEDORA / CENTOS STREAM)
 ======================================================================
 
-1. INTRODUCTION
+1. INSTALLATION
 ----------------
-    tmux lets you manage multiple terminal sessions inside one shell
-    window. You can disconnect (detach) from a session without stopping
-    the processes inside it, perfect for running services in the background,
-    build scripts, or persistent monitoring tools.
+    sudo dnf install tuned tuned-utils
+
+Enable and start tuned:
+
+    sudo systemctl enable --now tuned
+    systemctl status tuned    # verify daemon is active
 
 ======================================================================
 
 2. BASIC COMMANDS
 ----------------
-    Start a new session:
-        tmux new -s NAME
-
-    Example:
-        tmux new -s mc
-
-    Detach (leave session running):
-        Ctrl+b d
-
-    List all active sessions:
-        tmux ls
-
-    Reconnect to a session:
-        tmux attach -t NAME
-
-    Kill (terminate) a session:
-        tmux kill-session -t NAME
+    tuned-adm list                  # list all profiles
+    tuned-adm active                # show active profile
+    sudo tuned-adm profile <name>   # switch to <name> profile
+    tuned-adm recommend             # get system recommendation
+    tuned-adm profile_info          # show details of active profile
+    tuned-adm off                   # disable tuned completely
 
 ======================================================================
 
-3. PREFIX KEY
+3. HOW TO ACTIVATE A PROFILE
 ----------------
-    All tmux shortcuts start with a prefix key.  
-    Default prefix:
-        Ctrl+b
+Example: switch to latency-performance
 
-    After pressing Ctrl+b, follow with another key for an action.
+    tuned-adm list
+    sudo tuned-adm profile latency-performance
+    tuned-adm active
+    tuned-adm profile_info
 
-    Common examples:
-        Ctrl+b d   → detach
-        Ctrl+b c   → create new window
-        Ctrl+b n   → switch to next window
-        Ctrl+b p   → switch to previous window
+Ensure tuned stays enabled on reboot:
+
+    sudo systemctl enable --now tuned
+
+You can change profiles anytime — new settings apply immediately.
 
 ======================================================================
 
-4. WINDOWS & PANES
+4. AVAILABLE PROFILES
 ----------------
-    Each session may contain multiple **windows**, and each window
-    can be split into **panes** for multitasking.
-
-    Create a new window:
-        Ctrl+b c
-
-    Switch between windows:
-        Ctrl+b n   "next"
-        Ctrl+b p   "previous"
-
-    Split panes horizontally:
-        Ctrl+b "
-
-    Split panes vertically:
-        Ctrl+b %
-
-    Close the current pane/window:
-        Ctrl+b x
+    accelerator-performance   - Max throughput, disables deep CPU sleep states
+    aws                       - Optimize for AWS EC2 instances
+    balanced                  - General non-specialized tuned profile
+    balanced-battery          - Balanced profile tuned for longer battery life
+    desktop                   - Optimized for desktop workloads
+    hpc-compute               - High-performance compute workloads
+    intel-sst                 - Intel Speed Select Base Frequency
+    latency-performance       - Deterministic, low-latency performance
+    network-latency           - Optimize for low-latency network performance
+    network-throughput        - Optimize for high-throughput networking
+    optimize-serial-console   - Optimized for serial console environments
+    powersave                 - Minimize power consumption
+    throughput-performance    - Balanced server performance tuning
+    virtual-guest             - Optimize for running inside a VM
+    virtual-host              - Optimize for KVM hypervisors
 
 ======================================================================
 
-5. COMMON WORKFLOW (EXAMPLE)
+5. BEST USE CASES
 ----------------
-    1. SSH into your server.
-    2. Start a tmux session:
-           tmux new -s mc
-    3. Run your server or process:
-           java -Xmx8G -Xms8G -jar server.jar nogui
-    4. Detach safely:
-           Ctrl+b d
-    5. Logout — the process continues running in the background.
-    6. Reconnect later:
-           tmux attach -t mc
-    7. To stop your running process cleanly, use its normal shutdown command (e.g. `stop` for Minecraft).
+=== LAPTOPS / DESKTOPS ===
+    balanced            -> Default, safe for most users
+    balanced-battery    -> Best for extending laptop battery life
+    desktop             -> Responsive desktop workloads
+    powersave           -> Extreme power saving, reduced performance
+
+=== SERVERS (GENERAL) ===
+    throughput-performance -> Great default for general servers
+    latency-performance    -> Best for databases, game servers (e.g. Minecraft)
+    accelerator-performance -> More aggressive throughput tuning
+
+=== NETWORK SERVERS ===
+    network-latency     -> VOIP, trading, low-latency network apps
+    network-throughput  -> Bulk transfers, storage, 40G+ NICs
+
+=== HPC / SCIENTIFIC ===
+    hpc-compute         -> High-performance scientific jobs
+    latency-performance -> Predictable performance for compute nodes
+
+=== CLOUD / VIRTUALIZATION ===
+    aws                 -> Optimized for EC2
+    virtual-guest       -> Inside a VM
+    virtual-host        -> Hypervisors
+
+=== SPECIALIZED ===
+    intel-sst           -> Intel CPUs with Speed Select Technology
+    optimize-serial-console -> Minimal tuning for serial console servers
 
 ======================================================================
 
-6. TIPS & BEST PRACTICES
+6. VERIFYING EFFECTS
 ----------------
-    - Use descriptive session names (e.g., `mc`, `dev`, `logs`).
-    - Run `tmux ls` to see all active sessions.
-    - Detach anytime without losing progress.
-    - Combine tmux with SSH for resilient server management.
-    - Use multiple panes to monitor logs and active processes side by side.
+Check applied tunables:
+
+    tuned-adm profile_info
+
+Inspect common changes manually:
+
+    cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    blockdev --getra /dev/sda
+    sysctl -a | grep vm.dirty_ratio
 
 ======================================================================
 
-7. RESOURCES
+7. CUSTOM PROFILES
 ----------------
-    Official man page:
-        man tmux
+System profiles are located in:
+    /usr/lib/tuned/
 
-    Project Wiki:
-        https://github.com/tmux/tmux/wiki
+Custom profiles should be placed in:
+    /etc/tuned/
+
+Example:
+    sudo mkdir /etc/tuned/myprofile
+    sudo cp /usr/lib/tuned/balanced/tuned.conf /etc/tuned/myprofile/
+    vim /etc/tuned/myprofile/tuned.conf
+    sudo tuned-adm profile myprofile
+
+======================================================================
+
+8. TROUBLESHOOTING
+----------------
+Check logs:
+    journalctl -u tuned
+
+Reset tuned:
+    tuned-adm off
+    sudo tuned-adm profile balanced
+
+Conflicts:
+    Other tools (like cpupower) may override CPU governors.
+
+======================================================================
+
+9. QUICK REFERENCE
+----------------
+    tuned-adm list
+    tuned-adm active
+    tuned-adm recommend
+    sudo tuned-adm profile <name>
+    tuned-adm profile_info
+    tuned-adm off
+
+======================================================================
+
+10. REAL-WORLD EXAMPLES
+----------------
+Laptop (battery saving):
+    sudo tuned-adm profile balanced-battery
+
+Desktop (responsive):
+    sudo tuned-adm profile desktop
+
+Minecraft server (reduce tick lag):
+    sudo tuned-adm profile latency-performance
+
+Database server (low latency I/O):
+    sudo tuned-adm profile latency-performance
+
+File server (high throughput):
+    sudo tuned-adm profile throughput-performance
+
+Virtual machine host:
+    sudo tuned-adm profile virtual-host
 
 ======================================================================
 AUTHOR: Andrew Arabian
 SCHOOL: California State University, Northridge (CSUN)
 ======================================================================
+
 
