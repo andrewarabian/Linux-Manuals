@@ -1,0 +1,117 @@
+======================================================================
+  FEDORA (RHEL) BASICS
+======================================================================
+
+A complete guide to turning Fedora 42 into a secure and stable
+environment for cybersecurity research and ethical hacking.
+
+======================================================================
+
+1. INSTALL THE SECURITY TOOLSET
+----------------
+    Install the Fedora Security Lab group:
+        sudo dnf groupinstall "Security Lab"
+
+    Or install individual tools:
+
+    # Network Scanning:
+        sudo dnf install nmap masscan
+
+    # Packet Capture:
+        sudo dnf install wireshark tcpdump
+
+    # Vulnerability Scanning:
+        sudo dnf install openvas nikto
+
+    # Exploitation:
+        sudo dnf install metasploit-framework
+
+    # Brute Force Tools:
+        sudo dnf install hydra medusa
+
+    # Wireless Testing:
+        sudo dnf install aircrack-ng kismet
+
+    # Forensics:
+        sudo dnf install sleuthkit autopsy
+
+======================================================================
+
+2. SECURITY HARDENING TIPS
+----------------
+    Ensure SELinux is active:
+        getenforce
+        "Expected output: Enforcing"
+
+    Enable firewalld and review zones:
+        sudo systemctl enable --now firewalld
+        sudo firewall-cmd --get-active-zones
+
+    Enable automatic security updates:
+        sudo dnf install dnf-automatic
+        sudo systemctl enable --now dnf-automatic.timer
+
+======================================================================
+
+3. RUNNING TOOLS IN CONTAINERS
+----------------
+    Install Podman if not already:
+        sudo dnf install podman
+
+    Example: Run OWASP ZAP:
+        podman run -it docker.io/owasp/zap2docker-stable
+
+    Use Toolbox for isolated environments:
+        sudo dnf install toolbox
+        toolbox create pentest-env
+        toolbox enter pentest-env
+
+======================================================================
+
+4. OPTIONAL: VIRTUAL LAB SETUP
+----------------
+    Install virtualization tools:
+        sudo dnf install @virtualization
+        sudo systemctl enable --now libvirtd
+
+    Install GUI manager:
+        sudo dnf install virt-manager
+
+    Example VM use cases:
+        - Metasploitable2 (target VM)
+        - Kali Linux (toolset VM)
+        - Internal NAT-only test networks
+
+======================================================================
+
+5. NOTES & TIPS
+----------------
+    - Fedora is already one of the most secure Linux distributions.
+    - SELinux, RPM hardening, and firewalld provide strong protection.
+    - No need to switch to Kali/Parrot if you prefer Fedora.
+    - Use DNF and Flatpak for sandboxed installations.
+    - Keep your system up to date:
+          sudo dnf upgrade --refresh
+    - Backup configuration files and dotfiles before modifying tools.
+
+======================================================================
+
+6. RESOURCES
+----------------
+    Fedora Security Lab Project:
+        https://labs.fedoraproject.org/en/security/
+
+    Toolbox (Development Environments):
+        https://containertoolbx.org/
+
+    Fedora Security Wiki:
+        https://fedoraproject.org/wiki/Security
+
+    Security Tools Index:
+        https://sectools.org/
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

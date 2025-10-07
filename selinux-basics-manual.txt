@@ -1,0 +1,146 @@
+======================================================================
+  SELINUX BASICS MANUAL
+======================================================================
+
+A practical beginner’s guide to understanding and managing SELinux on
+RHEL, Fedora, Rocky Linux, and similar systems. Covers core concepts,
+commands, troubleshooting, and best practices for secure configurations.
+
+======================================================================
+
+1. INTRODUCTION
+----------------
+    SELinux (Security-Enhanced Linux) is a Mandatory Access Control (MAC)
+    system designed to enforce least-privilege security policies, even for root.
+
+    - Built into RHEL, Fedora, Rocky, and AlmaLinux.
+    - Prevents unauthorized actions and exploits.
+    - Enforces access based on **labels** (contexts) for files, ports, and processes.
+    - Implements **Type Enforcement** (e.g., httpd_t, ssh_t).
+
+    **Modes:**
+        enforcing  → SELinux policies actively enforced
+        permissive → Logs violations but does not block actions
+        disabled   → SELinux off (not recommended)
+
+======================================================================
+
+2. KEY SELINUX CONCEPTS
+----------------
+
+2.1 LABELS / CONTEXTS
+    Structure: user:role:type:level
+    - TYPE is most important for administrators.
+    - Example types: httpd_t, ssh_t, var_t
+
+2.2 BOOLEANS
+    - On/off toggles for service-specific behaviors.
+    - Lets you adjust permissions without custom policy creation.
+
+2.3 LOGGING
+    - SELinux denials are logged in:
+        /var/log/audit/audit.log
+    - If auditd is not running, check:
+        /var/log/messages or /var/log/syslog
+    - Tools for analysis:
+        ausearch, sealert
+
+2.4 POLICY MANAGEMENT
+    - Core policies are managed via modular policy packages.
+    - Custom modules can be created for advanced configurations.
+
+======================================================================
+
+3. ESSENTIAL COMMANDS & WORKFLOWS
+----------------
+
+3.1 CHECK SELINUX STATUS
+    getenforce
+    sestatus
+
+3.2 CHANGE SELINUX MODES
+    setenforce 0          "temporarily set to permissive"
+    setenforce 1          "temporarily set to enforcing"
+
+    For permanent configuration:
+        sudo nano /etc/selinux/config
+        SELINUX=enforcing   "options: enforcing, permissive, disabled"
+
+3.3 VIEW CONTEXTS
+    ls -Z /path/to/file          "view file labels"
+    ps -eZ | grep processname    "view process labels"
+
+3.4 RESTORE CORRECT CONTEXTS
+    restorecon -v /path/to/file
+    restorecon -Rv /path/to/directory
+
+3.5 CHANGE CONTEXT TEMPORARILY
+    chcon -t httpd_sys_content_t /path/to/file
+
+3.6 CHECK & MANAGE BOOLEANS
+    getsebool -a                           "list all booleans"
+    getsebool httpd_can_network_connect    "check specific boolean"
+
+    Enable boolean persistently:
+        setsebool -P httpd_can_network_connect on
+
+3.7 VIEW & ANALYZE SELINUX LOGS
+    View recent denials:
+        ausearch -m avc -ts recent
+
+    Generate readable report:
+        sealert -a /var/log/audit/audit.log
+
+3.8 CREATE CUSTOM POLICY MODULE
+    grep "AVC" /var/log/audit/audit.log | audit2allow -M mymodule
+    semodule -i mymodule.pp
+
+3.9 LIST INSTALLED MODULES
+    semodule -l
+
+======================================================================
+
+4. TROUBLESHOOTING WORKFLOW
+----------------
+    1. Check `/var/log/audit/audit.log` for denials.
+    2. Use `ausearch` or `sealert` to identify the cause.
+    3. Check file labeling:
+        ls -Z <path>
+        restorecon -v <path>
+    4. Adjust booleans if necessary:
+        getsebool -a | grep <service>
+        setsebool -P boolean_name on
+    5. If required, create a custom policy module with `audit2allow`.
+
+======================================================================
+
+5. WHY SELINUX MATTERS
+----------------
+    - Prevents privilege escalation and lateral movement.
+    - Required for enterprise compliance (FedRAMP, CIS, STIG).
+    - Core component of Linux hardening and defense-in-depth.
+    - Builds real-world DFIR and system hardening skills.
+
+======================================================================
+
+6. BEST PRACTICES
+----------------
+       Keep SELinux in enforcing mode unless actively debugging.  
+       Use `restorecon` before `chcon` to prevent manual labeling errors.  
+       Prefer toggling booleans over disabling SELinux.  
+       Combine SELinux with firewalld and SSH key authentication.  
+       Regularly review AVC logs to detect misconfigurations early.  
+
+======================================================================
+
+7. FINAL NOTES
+----------------
+    - SELinux enforces a **default deny** model.
+    - Proper understanding sets apart true Linux security admins.
+    - Practicing SELinux on Fedora builds enterprise-grade skills.
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

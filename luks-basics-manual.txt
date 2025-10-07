@@ -1,0 +1,158 @@
+======================================================================
+  LUKS WIPE & ENCRYPTION MANUAL
+======================================================================
+
+A beginner-friendly guide for Linux users to detect, encrypt, decrypt,
+wipe, and reset drives using LUKS (Linux Unified Key Setup).  
+Includes mounting, repartitioning, and troubleshooting steps.
+
+======================================================================
+
+1. DETECTING MEDIA
+----------------
+    View all drives and partitions:
+        lsblk -o NAME,SIZE,TYPE,MOUNTPOINT
+
+    Detect filesystems and encryption types:
+        sudo blkid
+
+    View recently attached devices (e.g., USB drives):
+        dmesg | tail -20
+
+======================================================================
+
+2. ENCRYPTING A DRIVE WITH LUKS
+----------------
+    ⚠️ WARNING: This process destroys all existing data on the drive.
+
+    1. Create a new partition table (optional for fresh disks):
+        sudo fdisk /dev/sda
+
+        Inside fdisk:
+            g   - new GPT partition table
+            n   - new partition
+            w   - write and exit
+
+    2. Initialize LUKS encryption:
+        sudo cryptsetup luksFormat /dev/sda1
+
+    3. Open (decrypt for use):
+        sudo cryptsetup luksOpen /dev/sda1 my_encrypted
+
+    4. Create a filesystem inside the encrypted container:
+        sudo mkfs.ext4 /dev/mapper/my_encrypted
+
+    5. Mount for use:
+        sudo mount /dev/mapper/my_encrypted /mnt
+
+    6. When finished:
+        sudo umount /mnt
+        sudo cryptsetup luksClose my_encrypted
+
+======================================================================
+
+3. DECRYPTING A LUKS DRIVE
+----------------
+    Open (decrypt) the LUKS partition:
+        sudo cryptsetup luksOpen /dev/sda3 my_encrypted
+
+    Mount the unlocked container:
+        sudo mount /dev/mapper/my_encrypted /mnt
+
+    Close and unmount when done:
+        sudo umount /mnt
+        sudo cryptsetup luksClose my_encrypted
+
+======================================================================
+
+4. WIPING DRIVES (REMOVE ENCRYPTION)
+----------------
+    ⚠️ WARNING: This process permanently destroys all data.
+
+    1. Ensure the drive is not mounted:
+        lsblk -o NAME,MOUNTPOINT
+
+        If mounted:
+            sudo umount /dev/sda1
+
+    2. Close any LUKS mappings:
+        ls /dev/mapper
+        sudo cryptsetup luksClose my_encrypted
+
+    3. Disable swap if active:
+        swapon --show
+        sudo swapoff -a
+
+    4. Check for busy processes:
+        sudo lsof /dev/sda
+        sudo fuser -v /dev/sda
+
+        Kill stuck processes:
+            sudo kill -9 <pid>
+
+    5. Wipe filesystem signatures:
+        sudo wipefs -fa /dev/sda
+
+    6. Overwrite headers (quick nuke):
+        sudo dd if=/dev/zero of=/dev/sda bs=1M count=100
+
+    7. Full wipe (slow and secure):
+        sudo dd if=/dev/zero of=/dev/sda bs=1M status=progress
+
+======================================================================
+
+5. MOUNTING DRIVES
+----------------
+    Mount a normal partition:
+        sudo mount /dev/sda1 /mnt
+
+    Unmount:
+        sudo umount /mnt
+
+    View mounted filesystems:
+        mount | grep "^/dev"
+
+======================================================================
+
+6. REPARTITIONING CLEAN DRIVES
+----------------
+    After wiping, drives will be blank. Recreate partitions using fdisk or parted.
+
+    Example (using fdisk):
+        sudo fdisk /dev/sda
+
+        Inside fdisk:
+            g   - create new GPT partition table
+            n   - new partition
+            w   - write and exit
+
+======================================================================
+
+7. TROUBLESHOOTING
+----------------
+    Q: Device reports “busy” even if not mounted?  
+       - Check for LUKS mappings under /dev/mapper  
+       - Ensure swap is off  
+       - Use lsof or fuser to find active processes
+
+    Q: Want the fastest reset?  
+       - Use `wipefs -fa` and `dd` with count=100 to clear headers.
+
+    Q: Want the most secure wipe?  
+       - Run a full `dd` overwrite of the entire disk (may take hours).
+
+======================================================================
+
+8. SUMMARY
+----------------
+    - Detect drives: `lsblk`, `blkid`, `dmesg`
+    - Encrypt: `luksFormat`, `mkfs`
+    - Decrypt: `luksOpen`, `mount`
+    - Wipe: `wipefs` + `dd`
+    - Repartition: `fdisk` or `parted`
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

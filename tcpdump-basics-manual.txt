@@ -1,0 +1,106 @@
+======================================================================
+  TCPDUMP MANUAL
+======================================================================
+
+A beginner-friendly guide to capturing and analyzing network packets
+in real time using tcpdump. Includes filters, common options, and best
+practices for performance and safety.
+
+======================================================================
+
+1. INTRODUCTION
+----------------
+    tcpdump is a command-line packet capture tool for inspecting
+    live or recorded network traffic. It displays captured packets
+    directly in the terminal.
+
+    Basic syntax:
+        tcpdump [options] [expression]
+
+    Think:
+        OPTIONS    → how to capture
+        EXPRESSION → what to capture
+
+======================================================================
+
+2. COMMON OPTIONS
+----------------
+    -i <iface>      → Capture on interface (e.g., eth0, wlan0, any)
+    -n              → Don’t resolve hostnames (faster, clearer)
+    -nn             → Don’t resolve hostnames or ports
+    -c <count>      → Capture only N packets
+    -s <snaplen>    → Capture N bytes per packet (0 = full packet)
+    -w <file>       → Write raw packets to file (.pcap)
+    -r <file>       → Read packets from a file
+    -vv, -vvv       → Increase verbosity level
+
+======================================================================
+
+3. FILTER EXPRESSIONS
+----------------
+    Expressions define **which packets** are captured.
+
+    Format:
+        <protocol> <direction> <qualifier>
+
+    Common protocols:
+        ip, ip6, tcp, udp, icmp, arp, ether
+
+    Directions:
+        src, dst, src or dst, src and dst
+
+    Examples:
+        host 192.168.1.5      → all traffic to/from host
+        src port 22           → packets from port 22
+        dst net 10.0.0.0/8    → traffic to 10.x.x.x network
+        tcp[13] & 2 != 0      → SYN packets (bitwise filter)
+
+======================================================================
+
+4. USEFUL EXAMPLES
+----------------
+    Show only HTTP traffic:
+        tcpdump -i any -nn tcp port 80
+
+    Show only DNS:
+        tcpdump -i any -nn udp port 53
+
+    Capture all traffic between two hosts:
+        tcpdump host 10.0.0.5 and 10.0.0.8
+
+    Capture packets larger than 1000 bytes:
+        tcpdump greater 1000
+
+    Save packets to a file:
+        tcpdump -i eth0 -w capture.pcap
+
+    Read packets from a file:
+        tcpdump -r capture.pcap
+
+======================================================================
+
+5. PERFORMANCE & SAFETY TIPS
+----------------
+    - Use `-n` or `-nn` to avoid DNS lookups (faster output).
+    - Use `-c` to limit the number of captured packets.
+    - Use `-s 0` to capture full packets (needed for analysis).
+    - Run as root/admin for complete access to network interfaces.
+    - Remember: tcpdump can reveal sensitive data — handle captures securely.
+
+======================================================================
+
+6. QUICK REFERENCE RECAP
+----------------
+    Common capture combinations:
+        tcpdump -i any -nn -c 10
+        tcpdump -i wlan0 port 443
+        tcpdump -i eth0 tcp and not port 22
+
+    Always consider:
+        Interface?  Filter?  Output?
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

@@ -1,0 +1,120 @@
+======================================================================
+  TMUX MANUAL
+======================================================================
+
+A beginner-friendly guide to tmux — the terminal multiplexer that allows
+you to run multiple persistent shell sessions within a single terminal
+or SSH connection. Ideal for servers, long-running processes, and
+multitasking environments.
+
+======================================================================
+
+1. INTRODUCTION
+----------------
+    tmux lets you manage multiple terminal sessions inside one shell
+    window. You can disconnect (detach) from a session without stopping
+    the processes inside it — perfect for running Minecraft servers,
+    build scripts, or persistent monitoring tools.
+
+======================================================================
+
+2. BASIC COMMANDS
+----------------
+    Start a new session:
+        tmux new -s NAME
+
+    Example:
+        tmux new -s mc
+
+    Detach (leave session running):
+        Ctrl+b d
+
+    List all active sessions:
+        tmux ls
+
+    Reconnect to a session:
+        tmux attach -t NAME
+
+    Kill (terminate) a session:
+        tmux kill-session -t NAME
+
+======================================================================
+
+3. PREFIX KEY
+----------------
+    All tmux shortcuts start with a prefix key.  
+    Default prefix:
+        Ctrl+b
+
+    After pressing Ctrl+b, follow with another key for an action.
+
+    Common examples:
+        Ctrl+b d   → detach
+        Ctrl+b c   → create new window
+        Ctrl+b n   → switch to next window
+        Ctrl+b p   → switch to previous window
+
+======================================================================
+
+4. WINDOWS & PANES
+----------------
+    Each session may contain multiple **windows**, and each window
+    can be split into **panes** for multitasking.
+
+    Create a new window:
+        Ctrl+b c
+
+    Switch between windows:
+        Ctrl+b n   "next"
+        Ctrl+b p   "previous"
+
+    Split panes horizontally:
+        Ctrl+b "
+
+    Split panes vertically:
+        Ctrl+b %
+
+    Close the current pane/window:
+        Ctrl+b x
+
+======================================================================
+
+5. COMMON WORKFLOW (EXAMPLE)
+----------------
+    1. SSH into your server.
+    2. Start a tmux session:
+           tmux new -s mc
+    3. Run your server or process:
+           java -Xmx8G -Xms8G -jar server.jar nogui
+    4. Detach safely:
+           Ctrl+b d
+    5. Logout — the process continues running in the background.
+    6. Reconnect later:
+           tmux attach -t mc
+    7. To stop your running process cleanly, use its normal shutdown command (e.g. `stop` for Minecraft).
+
+======================================================================
+
+6. TIPS & BEST PRACTICES
+----------------
+    - Use descriptive session names (e.g., `mc`, `dev`, `logs`).
+    - Run `tmux ls` to see all active sessions.
+    - Detach anytime without losing progress.
+    - Combine tmux with SSH for resilient server management.
+    - Use multiple panes to monitor logs and active processes side by side.
+
+======================================================================
+
+7. RESOURCES
+----------------
+    Official man page:
+        man tmux
+
+    Project Wiki:
+        https://github.com/tmux/tmux/wiki
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

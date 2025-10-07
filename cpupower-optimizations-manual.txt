@@ -1,0 +1,153 @@
+======================================================================
+  CPUPOWER OPTIMIZATIONS MANUAL
+======================================================================
+
+A beginner-friendly guide to tuning CPU governors, frequencies,
+and power states for performance or efficiency on Linux systems.
+
+======================================================================
+
+1. GOVERNORS
+----------------
+    Governors decide how your CPU frequency changes based on system load.
+
+        performance   - Always runs at max clock. Best for servers or gaming.
+        powersave     - Always runs at min clock. Best for laptops or cool operation.
+        schedutil     - Modern adaptive scaling. Good for balanced general use.
+        ondemand      - Older adaptive scaling. Still used on legacy systems.
+
+    View available governors:
+        cpupower frequency-info
+
+    Set one:
+        sudo cpupower frequency-set -g performance
+
+======================================================================
+
+2. FREQUENCY CONTROL
+----------------
+    Define minimum, maximum, or fixed CPU frequencies.
+
+        -d   Minimum frequency limit
+        -u   Maximum frequency limit
+        -f   Fixed frequency (forces all cores to one value, not recommended)
+
+    Example:
+        sudo cpupower frequency-set -d 800MHz -u 4800MHz
+
+    This allows turbo boost while keeping minimum idle speed reasonable.
+
+======================================================================
+
+3. IDLE STATES (C-STATES)
+----------------
+    CPUs enter C-states when idle. Deeper C-states save power but wake slower.
+
+    View idle state info:
+        sudo cpupower idle-info
+
+    Disable deep idle (e.g., C3 and deeper) for smoother performance:
+        sudo cpupower idle-set -d 3
+
+    Re-enable all idle states:
+        sudo cpupower idle-set -e all
+
+    Tip:
+        Servers that need consistent tick timing benefit from disabling deep
+        idle states, while laptops should leave them enabled.
+
+======================================================================
+
+4. PERFORMANCE BIAS (INTEL CPUs)
+----------------
+    Intel CPUs allow adjusting hardware-level performance bias:
+
+        sudo cpupower set --perf-bias <N>
+
+        0  = favor maximum performance
+        15 = favor maximum power saving
+
+    Example:
+        sudo cpupower set --perf-bias 0
+
+======================================================================
+
+5. REAL-WORLD PROFILES
+----------------
+=== HIGH PERFORMANCE (Servers, Minecraft, Databases) ===
+    sudo cpupower frequency-set -g performance
+    sudo cpupower idle-set -d 3
+    sudo cpupower set --perf-bias 0
+
+=== BALANCED (Everyday Desktop) ===
+    sudo cpupower frequency-set -g schedutil
+    sudo cpupower idle-set -e all
+    sudo cpupower set --perf-bias 5
+
+=== POWER SAVING (Laptops, Thermally Limited) ===
+    sudo cpupower frequency-set -g powersave
+    sudo cpupower idle-set -e all
+    sudo cpupower set --perf-bias 15
+
+======================================================================
+
+6. VERIFYING SETTINGS
+----------------
+    Show active governor, min/max frequencies, and boost state:
+        cpupower frequency-info
+
+    Show idle state configuration:
+        cpupower idle-info
+
+======================================================================
+
+7. COMBINE WITH TUNED
+----------------
+    Combine cpupower with tuned-adm for enhanced system optimization:
+
+        sudo tuned-adm profile hpc-compute
+        sudo cpupower frequency-set -g performance
+
+    The “hpc-compute” profile maintains higher CPU clocks
+    and minimizes latency — ideal for game servers or real-time workloads.
+
+======================================================================
+
+8. SYSTEM TUNING RECOMMENDATIONS
+----------------
+    Recommended baseline settings:
+
+        • Governor       : performance
+        • Swappiness     : 10
+        • I/O Read-Ahead : 4096
+        • Mount Options  : noatime
+        • Tuned Profile  : hpc-compute
+
+    Apply quickly:
+        sudo sysctl -w vm.swappiness=10
+        sudo blockdev --setra 4096 /dev/nvme0n1
+
+======================================================================
+
+9. SUMMARY TABLE
+----------------
+    Goal               Governor     Idle     Perf-Bias   Notes
+    --------------------------------------------------------------------------
+    Max Performance     performance  -d 3     0           Servers / Games
+    Balanced            schedutil    all      5           Desktops
+    Power Saving        powersave    all      15          Laptops / Low heat
+
+======================================================================
+
+10. NOTES
+----------------
+    - Leave headroom for OS-level caching (CPU and RAM).
+    - Settings reset after reboot unless automated in rc.local or systemd.
+    - Use “sudo cpupower info” to verify turbo boost status.
+    - Root privileges required for most cpupower operations.
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

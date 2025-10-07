@@ -1,0 +1,86 @@
+======================================================================
+  SELINUX & SEMANAGE MANUAL
+======================================================================
+
+A beginner-friendly guide for configuring SELinux on RHEL, CentOS,
+and Fedora systems. Learn to safely allow custom applications and
+ports (e.g., Minecraft servers) without disabling SELinux.
+
+======================================================================
+
+1. INSTALL REQUIRED TOOLS
+----------------
+    Run this once to install SELinux management utilities:
+
+        sudo dnf install -y policycoreutils-python-utils setools-console
+
+======================================================================
+
+2. ALLOWING A SERVICE TO USE A CUSTOM DIRECTORY
+----------------
+    Example: You installed Minecraft into `/home/mcserver/Server`
+
+    a) Add a new SELinux context rule:
+        sudo semanage fcontext -a -t usr_t "/home/mcserver/Server(/.*)?"
+
+        Explanation:
+            - `-a` → add new rule
+            - `-t usr_t` → assign safe generic label
+            - `(/.*)?` → include all subdirectories and files
+
+    b) Apply the new context to the directory:
+        sudo restorecon -Rv /home/mcserver/Server
+
+        Flags:
+            - `-R` → recursive
+            - `-v` → verbose output
+
+    Verify new labels:
+        ls -Z /home/mcserver/Server
+
+======================================================================
+
+3. ALLOWING A SERVICE TO USE A CUSTOM PORT
+----------------
+    Example: Minecraft server port 25565
+
+    a) Assign SELinux port label for allowed services:
+        sudo semanage port -a -t http_port_t -p tcp 25565
+
+    b) Verify that the port rule exists:
+        sudo semanage port -l | grep 25565
+
+    If output includes `25565/tcp`, the configuration was successful.
+
+======================================================================
+
+4. DEBUGGING SELINUX ERRORS
+----------------
+    If SELinux blocks an action or service, check recent logs:
+
+        sudo ausearch -m avc -ts recent
+        sudo journalctl | grep DENIED
+
+    To fix common issues:
+        - Adjust directory labels with `semanage fcontext` and `restorecon`
+        - Adjust allowed ports using `semanage port`
+        - As a last resort, create a local policy module:
+
+            sudo ausearch -c 'java' --raw | audit2allow -M myfix
+            sudo semodule -i myfix.pp
+
+======================================================================
+
+5. QUICK REFERENCE
+----------------
+    semanage fcontext   → Label directories and files  
+    restorecon           → Apply labels to filesystem  
+    semanage port        → Allow custom ports  
+    ls -Z                → View SELinux file labels  
+    NEVER disable SELinux globally (use targeted adjustments instead)
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

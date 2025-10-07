@@ -1,0 +1,181 @@
+======================================================================
+  DOCKER COMPOSE TROUBLESHOOTING MANUAL
+======================================================================
+
+A hands-on guide for diagnosing and fixing common Docker Compose issues
+such as permission errors, missing environment variables, networking
+problems, and SELinux access denials.
+
+======================================================================
+
+1. FIXING FILE PERMISSION ISSUES (UID/GID MATCHING)
+----------------
+Problem:
+    - Containers often run as root by default.
+    - Mounted host volumes are owned by normal users.
+    - This causes read/write permission errors and root-owned files.
+
+Symptoms:
+    - Applications (e.g., CryptPad) can’t read/write files.
+    - Files in volumes appear owned by root.
+    - Logs show “permission denied” or “EACCES”.
+
+Solution:
+    Step 1: Check your UID and GID:
+        id -u     "shows UID"
+        id -g     "shows GID"
+
+    Step 2: Create a .env file in your project directory:
+        UID=1000
+        GID=1000
+
+    Step 3: Edit docker-compose.yml:
+        user: "${UID}:${GID}"
+
+    Step 4: Restart services:
+        docker-compose down
+        docker-compose up -d
+
+Explanation:
+    Running the container as your host user prevents permission mismatches.
+
+======================================================================
+
+2. ENSURING .ENV VARIABLES ARE LOADED
+----------------
+Problem:
+    Environment variables like $UID or $PORT are ignored.
+
+Solution:
+    - Place `.env` in the same directory as docker-compose.yml.
+    - Format must be KEY=value (no spaces).
+    - Validate with:
+        docker-compose config
+
+Example .env:
+    UID=1000
+    GID=1000
+    PORT=3000
+
+Usage in docker-compose.yml:
+    ports:
+      - "${PORT}:3000"
+
+======================================================================
+
+3. VOLUMES NOT PERSISTING OR BINDING
+----------------
+Problem:
+    - Application data lost after restart.
+    - Volumes appear empty or reset state.
+
+Solution:
+    - Use **absolute paths** or correct relative paths.
+    - Ensure host path exists with proper permissions.
+
+Example:
+    volumes:
+      - ./data:/app/data
+
+Checklist:
+    - Is ./data created on host?
+    - Are permissions correct? (`ls -ld ./data`)
+    - Did you run `docker-compose down -v`? (removes volumes)
+
+======================================================================
+
+4. DEBUGGING FAILING SERVICES
+----------------
+Symptoms:
+    - Containers exit immediately.
+    - Services fail to start with `docker-compose up`.
+
+Solution:
+    1. View logs:
+        docker-compose logs <service_name>
+
+    2. Start container interactively:
+        docker-compose run --rm <service> /bin/bash
+
+    3. Add healthchecks for automated monitoring:
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:3000"]
+          interval: 30s
+          timeout: 10s
+          retries: 5
+
+======================================================================
+
+5. FIXING NETWORKING ISSUES
+----------------
+Problem:
+    - Containers cannot communicate with each other.
+    - Exposed ports not responding externally.
+
+Solution:
+    - Use service names for inter-container communication.
+    - All services share a default network.
+
+Bad:
+    API connects to localhost:5000
+
+Good:
+    API connects to web:5000
+
+Example:
+    services:
+      web:
+        image: nginx
+      app:
+        environment:
+          - API_URL=http://web:80
+
+======================================================================
+
+6. GENERAL TIPS
+----------------
+    - Use `depends_on:` for startup order.
+    - Prefer named volumes for persistent data.
+    - Run `docker-compose config` to validate syntax.
+    - Use `docker-compose ps` to check status.
+    - Add `restart: unless-stopped` for long-running services.
+
+======================================================================
+
+7. SELINUX AND DOCKER (AVOIDING AVC DENIALS)
+----------------
+Problem:
+    - On Fedora/RHEL/CentOS, SELinux may block volume access.
+    - Permission denied even with correct ownership.
+
+Symptoms:
+    - “Permission denied” errors in logs.
+    - Audit logs show `avc: denied { read/write }` entries.
+
+Solution 1: Use :z or :Z volume flags
+    - `:z` → shared content across containers
+    - `:Z` → private, isolated content
+
+Example:
+    volumes:
+      - ./cryptpad-data:/cryptpad/customize:Z
+
+Solution 2: Temporarily disable SELinux enforcement (testing only)
+    sudo setenforce 0
+    "Re-enable after testing:"
+    sudo setenforce 1
+
+Solution 3: Persistent label adjustment
+    sudo chcon -Rt svirt_sandbox_file_t ./cryptpad-data
+
+Checklist:
+    - Added `:Z` to volume mounts?
+    - Checked SELinux status (`sestatus`)?
+    - Viewed audit logs with:
+        sudo ausearch -m avc -ts recent
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

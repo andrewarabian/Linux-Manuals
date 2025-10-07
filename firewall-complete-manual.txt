@@ -1,0 +1,255 @@
+======================================================================
+  ADVANCED MANUAL — UFW & FIREWALLD EDITION
+======================================================================
+
+For: Linux Sysadmins, Homelabbers, and Cybersecurity Operators  
+A complete reference for configuring both UFW and firewalld across
+Debian, Fedora, and Arch Linux systems.
+
+======================================================================
+
+0. OVERVIEW
+----------------
+    - UFW: Frontend for iptables (default on Ubuntu)
+    - firewalld: Dynamic zone-based firewall (default on Fedora)
+
+    Choose based on your distro:
+        Debian / Ubuntu  → UFW
+        Fedora / RHEL    → firewalld
+        Arch Linux       → Either works fine
+
+======================================================================
+
+1. UFW — UNCOMPLICATED FIREWALL
+----------------
+
+1.1 INSTALL & ENABLE UFW
+----------------
+    Debian / Ubuntu:
+        sudo apt update
+        sudo apt install ufw
+
+    Fedora:
+        sudo dnf install ufw
+
+    Arch Linux:
+        sudo pacman -S ufw
+
+    Enable and start UFW:
+        sudo ufw enable
+        sudo systemctl enable ufw
+
+======================================================================
+
+1.2 BASIC USAGE
+----------------
+    Set default policies:
+        sudo ufw default deny incoming
+        sudo ufw default allow outgoing
+
+    Allow common ports:
+        sudo ufw allow ssh
+        sudo ufw allow 80/tcp
+        sudo ufw allow 443/tcp
+
+    Allow specific IP:
+        sudo ufw allow from 192.168.1.10
+
+    Deny a port:
+        sudo ufw deny 21
+
+    Delete a rule:
+        sudo ufw delete allow 80/tcp
+
+    View status:
+        sudo ufw status verbose
+
+======================================================================
+
+1.3 ADVANCED USAGE
+----------------
+    Allow subnet to a specific port:
+        sudo ufw allow from 192.168.1.0/24 to any port 22 proto tcp
+
+    Rate limit SSH:
+        sudo ufw limit ssh/tcp
+
+    Block outgoing to an IP:
+        sudo ufw deny out to 45.83.200.5
+
+    Create a custom application profile:
+        sudo nano /etc/ufw/applications.d/myapp
+
+    Example:
+        [MyApp]
+        title=My Custom App
+        description=Opens port 8080
+        ports=8080/tcp
+
+    Apply it:
+        sudo ufw allow "MyApp"
+
+======================================================================
+
+1.4 LOGGING
+----------------
+    Enable UFW logging:
+        sudo ufw logging on
+
+    View logs:
+        sudo tail -f /var/log/ufw.log
+
+======================================================================
+
+1.5 TROUBLESHOOTING
+----------------
+    - Ensure UFW is enabled.
+    - Use `ufw status numbered` to delete rules easily.
+    - If conflicts occur, check iptables or nftables configurations.
+
+======================================================================
+
+2. FIREWALLD
+----------------
+
+2.1 INSTALL & ENABLE
+----------------
+    Fedora / RHEL:
+        sudo dnf install firewalld
+
+    Debian / Ubuntu:
+        sudo apt install firewalld
+
+    Arch Linux:
+        sudo pacman -S firewalld
+
+    Enable and start service:
+        sudo systemctl enable firewalld
+        sudo systemctl start firewalld
+
+======================================================================
+
+2.2 FIREWALLD BASICS
+----------------
+    Get current default zone:
+        firewall-cmd --get-default-zone
+
+    List all zones:
+        firewall-cmd --get-zones
+
+    View all settings:
+        firewall-cmd --list-all
+
+======================================================================
+
+2.3 ALLOWING SERVICES & PORTS
+----------------
+    Allow SSH & HTTP:
+        firewall-cmd --zone=public --add-service=ssh --permanent
+        firewall-cmd --zone=public --add-service=http --permanent
+
+    Allow a custom port:
+        firewall-cmd --zone=home --add-port=8080/tcp --permanent
+
+    Apply configuration:
+        firewall-cmd --reload
+
+    Assign interface to zone:
+        firewall-cmd --zone=internal --change-interface=eth0 --permanent
+
+======================================================================
+
+2.4 RICH RULES (ADVANCED)
+----------------
+    Allow a single IP:
+        firewall-cmd --permanent --add-rich-rule='rule family=ipv4 source address=192.168.1.100 accept'
+
+    Log and drop a specific IP:
+        firewall-cmd --permanent --add-rich-rule='rule family=ipv4 source address=192.168.1.11 log prefix="DROP " level=info drop'
+
+    Limit SSH rate:
+        firewall-cmd --permanent --add-rich-rule='rule service name="ssh" limit value="1/m" accept'
+
+======================================================================
+
+2.5 LOGGING
+----------------
+    Enable denied packet logging:
+        firewall-cmd --set-log-denied=all
+
+    View logs:
+        journalctl -xe | grep firewalld
+
+======================================================================
+
+2.6 TROUBLESHOOTING
+----------------
+    Check firewalld service state:
+        firewall-cmd --state
+
+    Verify active settings:
+        firewall-cmd --list-all-zones
+
+    Check assigned interfaces:
+        nmcli connection show
+
+======================================================================
+
+3. SECURITY TIPS
+----------------
+    - Default-deny all inbound connections.
+    - Allow only essential services.
+    - Restrict SSH to known IPs.
+    - Combine with fail2ban for brute-force protection.
+    - Monitor firewall logs regularly.
+    - Test externally with:
+          nmap -Pn <your-server-ip>
+
+======================================================================
+
+4. INTEGRATIONS
+----------------
+    - Combine with fail2ban for automated blocking.
+    - Use Ansible to automate rule deployment.
+    - Pair with AppArmor or SELinux for layered security.
+
+======================================================================
+
+5. EXAMPLES
+----------------
+    UFW on Raspberry Pi:
+        - Allow SSH, HTTP, HTTPS
+        - Deny all else
+
+    firewalld on Fedora Server:
+        - Zone: internal
+        - Allow DNS, DHCP, NTP
+        - Drop unknown IPs using rich rules
+
+======================================================================
+
+6. SWITCHING FIREWALLS
+----------------
+    Disable UFW if switching to firewalld:
+        sudo ufw disable
+        sudo systemctl stop ufw
+
+    Enable firewalld:
+        sudo systemctl enable firewalld
+        sudo systemctl start firewalld
+
+======================================================================
+
+FINAL WORD
+----------------
+    - UFW = simple and reliable
+    - firewalld = dynamic and flexible
+    - Learn both and choose based on your use case.
+    - Always enforce the “default deny” principle.
+    - Stay updated, stay secure, and stay paranoid.
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

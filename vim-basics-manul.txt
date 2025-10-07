@@ -1,0 +1,62 @@
+======================================================================
+  VIM BEGINNERS MANUAL
+======================================================================
+
+A concise introduction to using Vim — a powerful text editor built into
+nearly every Linux distribution. Learn how to edit, save, and exit files
+with essential command shortcuts.
+
+======================================================================
+
+1. MODES IN VIM
+----------------
+    Vim has multiple modes. The two most important are:
+
+    - **Insert Mode:** For typing and editing text.
+    - **Command Mode:** For issuing editor commands.
+
+======================================================================
+
+2. ENTERING MODES
+----------------
+    Enter Insert Mode:
+        Press i
+
+    Enter Command Mode:
+        Press Esc, then Shift + :
+        (This opens the command line at the bottom of the Vim window.)
+
+======================================================================
+
+3. ESSENTIAL COMMANDS
+----------------
+    Save current file:
+        :w
+
+    Quit (exit Vim):
+        :q
+
+    Save and quit:
+        :wq
+
+    Quit without saving (force exit):
+        :q!
+
+======================================================================
+
+4. SUMMARY CHEATSHEET
+----------------
+    Mode        | Key / Command     | Description
+    --------------------------------------------------
+    Insert      | i                 | Enter text editing mode
+    Command     | :                 | Enter command-line mode
+    Save        | :w                | Save current changes
+    Quit        | :q                | Exit Vim safely
+    Save & Quit | :wq               | Save and exit
+    Force Quit  | :q!               | Exit without saving
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

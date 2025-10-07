@@ -1,0 +1,207 @@
+======================================================================
+  FEDORA/RHEL CLI DIAGNOSTICS & SYSADMIN MANUAL
+======================================================================
+
+A compact reference of built-in Fedora/RHEL CLI tools for diagnostics,
+monitoring, and first-level sysadmin triage (CPU, memory, disk, network,
+SELinux, logs, and baseline collection). :contentReference[oaicite:0]{index=0}
+
+======================================================================
+
+1. COMMON DIAGNOSTICS COMMANDS
+----------------
+    # CPU
+        lscpu
+        cat /proc/cpuinfo
+        top          "press 1 for per-core view"
+        uptime
+        cat /proc/loadavg
+        dmesg | grep -i cpu
+
+    # MEMORY
+        free -h
+        vmstat 1 5
+        swapon --show
+        ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head
+
+    # DISK
+        df -h
+        du -sh /*
+        df -i
+
+    # NETWORK
+        ip a
+        ip r
+        ping -c 4 1.1.1.1
+        ping -c 4 google.com
+        ss -tulpn
+
+    # SELINUX
+        getenforce
+        sudo setenforce 0    "temporarily permissive for testing"
+        sudo setenforce 1
+        sestatus
+
+    # LOGS
+        journalctl -xe
+        journalctl -b
+        dmesg | tail -n 20
+
+    # SYSTEM INFO
+        uname -r
+        uname -m
+        hostname
+        date
+
+    # PROCESS MANAGEMENT
+        ps aux
+        ps -ejH
+        kill <pid>
+        kill -9 <pid>
+
+======================================================================
+
+2. UNCOMMON (ADVANCED) DIAGNOSTICS COMMANDS
+----------------
+    cat /proc/net/dev                "interface RX/TX, errors, drops"
+    mount | column -t
+    lsblk
+    du -h /path | sort -hr | head -n 20
+    dmesg | grep -i "thermal\|throttle"
+    find /path -type f -size -1M       "detect many small files (inode issues)"
+    tail -f /var/log/messages
+    ausearch -m avc --success no | tail
+
+======================================================================
+
+3. BASELINE RECORDING COMMANDS
+----------------
+    # Create a baseline directory and capture system state:
+    mkdir -p ~/sys_baseline && cd ~/sys_baseline
+
+    lscpu > lscpu.txt
+    free -h > free.txt
+    df -h > df.txt
+    df -i > df_inodes.txt
+    ip a > ip_a.txt
+    ip r > ip_r.txt
+    uptime > uptime.txt
+    top -bn1 > top.txt
+    dmesg > dmesg.txt
+    journalctl -b > journal_boot.txt
+    uname -a > uname.txt
+    swapon --show > swap.txt
+    getenforce > selinux_mode.txt
+
+    "Use these files for incident comparison and historical baselines."
+
+======================================================================
+
+4. SYSTEMATIC SLOW-SYSTEM TROUBLESHOOTING WORKFLOW
+----------------
+    # Load check
+        uptime
+        top (press 1)
+        vmstat 1 5
+
+    # CPU check
+        top (press 1)
+        dmesg | grep -i cpu
+
+    # Memory check
+        free -h
+        swapon --show
+        ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head
+
+    # Disk check
+        df -h
+        df -i
+        dmesg | grep -i error
+
+    # Process check
+        ps aux --sort=-%cpu | head
+        ps aux --sort=-%mem | head
+
+    # Network check
+        ip a
+        ip r
+        ping -c 4 1.1.1.1
+
+    # Logs
+        journalctl -xe
+        dmesg | tail -n 20
+
+    # SELinux
+        getenforce
+        sudo setenforce 0    "test only"
+        sudo setenforce 1
+        ausearch -m avc --success no | tail
+
+    "Follow each stage to isolate root cause and collect data for escalation."
+
+======================================================================
+
+5. ADDITIONAL SYSADMIN ESSENTIAL COMMANDS
+----------------
+    # SYSTEM & HARDWARE
+        uname -a
+        lsmod
+        lsusb
+        lspci
+        sudo dmidecode | less
+        uptime -p
+
+    # DISK & FILESYSTEM
+        sync
+        sudo fdisk -l
+        blkid
+        mount
+        sudo umount /mount/point
+        touch /forcefsck
+
+    # NETWORK
+        hostnamectl
+        ip link show
+        ip neigh
+        traceroute <host>    "may require install"
+        netstat -tuln         "legacy; prefer ss"
+
+    # SECURITY & USERS
+        who
+        w
+        last
+        id <username>
+        passwd <username>
+        chmod +x file.sh
+        chown user:group file
+        visudo
+
+    # LOGGING & PROCESS CONTROL
+        journalctl -f
+        journalctl -u <service>
+        ps -auxf
+        pkill <processname>
+        nohup command &
+        tail -n 100 /var/log/messages
+
+    # SYSTEM MANAGEMENT
+        shutdown -h now
+        reboot
+        systemctl list-units --type=service
+        systemctl status <service>
+        systemctl start|stop|restart|enable|disable <service>
+        date
+        timedatectl
+
+    # SYSTEM CONFIG & TUNING
+        ulimit -n
+        sysctl -a
+        sudo sysctl net.ipv4.ip_forward=1
+        printenv
+        export VAR=value
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

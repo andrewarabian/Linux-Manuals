@@ -1,0 +1,115 @@
+======================================================================
+  FEDORA 42 FIREWALLD MANUAL
+======================================================================
+
+A practical guide to configuring, managing, and verifying firewall rules
+on Fedora 42 using FirewallD. Covers zones, ports, and custom services.
+
+======================================================================
+
+1. INTRODUCTION
+----------------
+    FirewallD is a dynamic firewall management tool supporting zones,
+    runtime and permanent rules, and simplified control over ports
+    and predefined services.
+
+======================================================================
+
+2. BASIC USAGE
+----------------
+    Check if FirewallD is active:
+        sudo firewall-cmd --state
+
+    Start, stop, enable, or disable FirewallD:
+        sudo systemctl start firewalld
+        sudo systemctl enable firewalld
+        sudo systemctl stop firewalld
+        sudo systemctl disable firewalld
+
+    Reload firewall after making configuration changes:
+        sudo firewall-cmd --reload
+
+======================================================================
+
+3. ZONES (TRUST LEVELS)
+----------------
+    Get the currently active zone:
+        sudo firewall-cmd --get-active-zones
+
+    List all available zones:
+        sudo firewall-cmd --get-zones
+
+    View configuration for a specific zone:
+        sudo firewall-cmd --zone=public --list-all
+
+    Common zones:
+        public    = default (untrusted)
+        home      = trusted LAN
+        work      = semi-trusted
+        drop      = deny all incoming traffic
+
+======================================================================
+
+4. PORT AND SERVICE CONTROL
+----------------
+=== TEMPORARY (Runtime) ===
+    Add an open port:
+        sudo firewall-cmd --add-port=8080/tcp
+
+=== PERMANENT (Persistent) ===
+    Add a port permanently:
+        sudo firewall-cmd --add-port=8080/tcp --permanent
+        sudo firewall-cmd --reload
+
+    Add a predefined service:
+        sudo firewall-cmd --add-service=http --permanent
+
+    Remove a port:
+        sudo firewall-cmd --remove-port=8080/tcp --permanent
+        sudo firewall-cmd --reload
+
+    List all open ports:
+        sudo firewall-cmd --list-ports
+
+======================================================================
+
+5. CUSTOM SERVICE (ADVANCED)
+----------------
+    Create a custom service definition file:
+        sudo nano /etc/firewalld/services/myservice.xml
+
+    Example XML format:
+        <service>
+          <short>MyApp</short>
+          <description>Custom Application Service</description>
+          <port protocol="tcp" port="1234"/>
+        </service>
+
+    Save the file, then reload FirewallD:
+        sudo firewall-cmd --reload
+
+======================================================================
+
+6. NANO EDITOR QUICK KEYS
+----------------
+    Ctrl + O    = Save file
+    Ctrl + X    = Exit
+    Ctrl + W    = Search text
+    Ctrl + K    = Cut line
+    Ctrl + U    = Paste line
+
+======================================================================
+
+7. TESTING RULES
+----------------
+    Check if a specific port is open:
+        sudo firewall-cmd --query-port=22/tcp
+
+    Check which services are active in the current zone:
+        sudo firewall-cmd --zone=public --list-services
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

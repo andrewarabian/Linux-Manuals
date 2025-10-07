@@ -1,0 +1,80 @@
+======================================================================
+  COCKPIT MANUAL
+======================================================================
+
+A beginner-friendly guide to installing, enabling, and managing
+the Cockpit web-based Linux administration interface.
+
+======================================================================
+
+1. INSTALLATION & ENABLEMENT
+----------------
+    Fedora / RHEL / CentOS:
+        sudo dnf install -y cockpit
+        sudo systemctl enable --now cockpit.socket
+
+    Debian / Ubuntu:
+        sudo apt install -y cockpit
+        sudo systemctl enable --now cockpit
+
+    Open firewall if needed:
+        sudo firewall-cmd --add-service=cockpit --permanent
+        sudo firewall-cmd --reload
+
+======================================================================
+
+2. ACCESSING THE INTERFACE
+----------------
+    Browser:
+        https://<server-ip>:9090
+
+    Login using your system username and password.
+
+======================================================================
+
+3. COMMON MODULES
+----------------
+    cockpit-storaged          - Manage storage, disks, partitions
+    cockpit-podman            - Manage containers (Podman)
+    cockpit-networkmanager    - Manage networking
+    cockpit-machines          - Manage virtual machines
+
+    Install example:
+        sudo dnf install -y cockpit-podman
+
+======================================================================
+
+4. MULTI-SERVER SETUP
+----------------
+    1. Log in to Cockpit on one machine.
+    2. Go to "Dashboard".
+    3. Add another server using SSH credentials.
+    4. Manage all connected servers from a single interface.
+
+======================================================================
+
+5. TROUBLESHOOTING
+----------------
+    Check service status:
+        systemctl status cockpit.socket
+
+    Restart the service:
+        sudo systemctl restart cockpit.socket
+
+    View logs:
+        journalctl -u cockpit
+
+======================================================================
+
+6. TIPS & NOTES
+----------------
+    - Cockpit uses systemd socket activation (lightweight, starts on demand)
+    - Disable if not needed:
+          sudo systemctl disable --now cockpit.socket
+    - Supports extensions installed via DNF or RPM packages
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

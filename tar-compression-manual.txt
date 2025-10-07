@@ -1,0 +1,110 @@
+======================================================================
+  TAR BACKUP & RESTORE MANUAL (MINECRAFT SERVER EDITION)
+======================================================================
+
+A step-by-step guide for safely backing up and restoring your Minecraft
+server using the `tar` command. Includes compression options, exclusions,
+and verification methods for secure and repeatable transfers.
+
+======================================================================
+
+1. PURPOSE
+----------------
+    Backup your entire Minecraft server folder (mods, worlds, configs)
+    and restore it safely on another system or external drive.
+
+======================================================================
+
+2. ASSUMPTIONS
+----------------
+    - Current server directory: /opt/minecraft/minecraft_server
+    - Backup destination: /run/media/youruser/USB
+    - Restore destination: /opt/minecraft/ on new machine
+    - Exclude unnecessary directories: logs, cache
+
+======================================================================
+
+3. CREATE A BACKUP (TAR.GZ ARCHIVE)
+----------------
+    Navigate to your Minecraft directory:
+        cd /opt/minecraft
+
+    Create a compressed archive:
+        tar -cvpzf minecraft_server_backup.tar.gz minecraft_server/ \
+        --exclude="minecraft_server/logs" \
+        --exclude="minecraft_server/cache"
+
+    Explanation:
+        -c  → create archive
+        -v  → verbose (show progress)
+        -p  → preserve permissions
+        -z  → gzip compression (.tar.gz)
+        -f  → specify filename
+        --exclude → skip specified paths
+
+    Copy the archive to your USB:
+        cp minecraft_server_backup.tar.gz /run/media/youruser/USB/
+
+======================================================================
+
+4. TRANSFER TO A NEW MACHINE
+----------------
+    1. Plug in your USB drive.
+    2. Mount it if necessary (usually auto-mounts to /run/media/youruser/USB).
+    3. Confirm the archive exists before proceeding.
+
+======================================================================
+
+5. RESTORE THE BACKUP
+----------------
+    Prepare the destination directory:
+        cd /opt/minecraft
+        sudo mkdir -p minecraft_server
+
+    Extract the archive:
+        sudo tar -xvpzf /run/media/youruser/USB/minecraft_server_backup.tar.gz \
+        -C /opt/minecraft/
+
+    Explanation:
+        -x  → extract files
+        -v  → verbose output
+        -p  → preserve file permissions
+        -z  → gzip decompression
+        -f  → target file
+        -C  → specify extraction directory
+
+======================================================================
+
+6. ADJUST PERMISSIONS (RECOMMENDED)
+----------------
+    Ensure proper file ownership:
+        sudo chown -R youruser:youruser /opt/minecraft/minecraft_server/
+
+======================================================================
+
+7. TEST YOUR SERVER
+----------------
+    1. Navigate to the restored server directory:
+        cd /opt/minecraft/minecraft_server
+
+    2. Start your server:
+        java -Xmx4G -Xms2G -jar forge.jar nogui
+
+======================================================================
+
+8. TIPS & BEST PRACTICES
+----------------
+    - Verify backup integrity before deletion:
+        tar -tvf minecraft_server_backup.tar.gz
+
+    - Exclude unnecessary files (logs/cache) to reduce size.
+    - For large servers, `.tar.gz` handles big files more reliably than `.zip`.
+    - Automate recurring backups with cron jobs:
+        Example (daily backup at 2 AM):
+            0 2 * * * /opt/minecraft/backup.sh
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

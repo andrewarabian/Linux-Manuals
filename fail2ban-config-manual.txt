@@ -1,0 +1,74 @@
+======================================================================
+  FAIL2BAN MANUAL
+======================================================================
+
+A quick-start guide to installing, enabling, and configuring Fail2Ban
+to protect Linux servers from brute-force login attempts.
+
+======================================================================
+
+1. INSTALLATION
+----------------
+    Arch Linux:
+        sudo pacman -S fail2ban
+
+    Debian / Ubuntu:
+        sudo apt install fail2ban
+
+    Fedora / RHEL / CentOS:
+        sudo dnf install fail2ban
+
+======================================================================
+
+2. ENABLE AND START SERVICE
+----------------
+    Enable and start Fail2Ban:
+        sudo systemctl enable --now fail2ban
+
+    Verify service status:
+        systemctl status fail2ban
+
+======================================================================
+
+3. CONFIGURE JAILS
+----------------
+    Create your local configuration file:
+        sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+
+    Edit the jail configuration:
+        sudo nano /etc/fail2ban/jail.local
+
+======================================================================
+
+4. CHECK SERVICE STATUS
+----------------
+    Display Fail2Ban overall status:
+        sudo fail2ban-client status
+
+    Check status of a specific jail (e.g., sshd):
+        sudo fail2ban-client status sshd
+
+======================================================================
+
+5. VIEW LOGS
+----------------
+    Monitor live Fail2Ban activity:
+        sudo tail -f /var/log/fail2ban.log
+
+======================================================================
+
+6. TIPS & NOTES
+----------------
+    - Always edit `jail.local`, not `jail.conf`.
+    - Default ban actions include blocking with iptables or nftables.
+    - To unban an IP:
+          sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
+    - Restart service after configuration changes:
+          sudo systemctl restart fail2ban
+    - Combine Fail2Ban with UFW or firewalld for layered security.
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+

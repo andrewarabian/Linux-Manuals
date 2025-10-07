@@ -1,0 +1,263 @@
+======================================================================
+  COMPRESSION, BACKUP & MOUNTING MANUAL (HEADLESS SERVER EDITION)
+======================================================================
+
+A complete guide for safely compressing, archiving, mounting, and managing backups on a headless or minimal Linux server environment. Designed for administrators who operate via SSH or console-only systems.
+
+======================================================================
+
+1. OVERVIEW
+----------------
+    This manual provides practical, command-line–only methods for:
+        • Creating and extracting compressed archives (.tar, .gz, .zip)
+        • Performing backups and implementing retention
+        • Mounting and unmounting local or external storage devices
+        • Automating backup operations securely
+        • Verifying integrity and preserving permissions
+
+======================================================================
+
+2. REQUIREMENTS
+----------------
+    These tools are standard on most minimal Linux distributions:
+        tar        → archive and compression
+        gzip/zip   → compression formats
+        mount      → attach external or virtual volumes
+        umount     → safely detach mounted drives
+        lsblk      → list storage devices
+        df -h      → show storage usage
+        find       → locate and delete old backups
+        cron       → schedule automated backups
+
+======================================================================
+
+3. COMPRESSING AND ARCHIVING FILES
+----------------
+=== Create a Compressed Archive ===
+    tar -cvpzf backup.tar.gz /path/to/directory
+
+    Flags:
+        -c   create a new archive
+        -v   verbose output (shows progress)
+        -p   preserve file permissions
+        -z   use gzip compression
+        -f   specify filename
+
+=== Extract an Archive ===
+    tar -xvpzf backup.tar.gz -C /destination/path
+
+=== List Archive Contents ===
+    tar -tvf backup.tar.gz
+
+=== Create a ZIP Archive (Alternative) ===
+    zip -r archive.zip /path/to/data
+
+=== Extract a ZIP Archive ===
+    unzip archive.zip -d /destination/path
+
+======================================================================
+
+4. SAFE BACKUP PROCEDURES
+----------------
+=== Full Directory Backup ===
+    Create a complete compressed backup of a directory:
+        sudo tar -cvpzf /mnt/backup/server_backup_$(date +%F).tar.gz /etc /home /var
+
+=== Exclude Unnecessary Data ===
+    Skip temporary folders, logs, or caches:
+        sudo tar -cvpzf backup.tar.gz /path/to/data \
+        --exclude=/path/to/data/logs \
+        --exclude=/path/to/data/cache
+
+=== Verify Backup Integrity ===
+    Validate that the archive can be read:
+        tar -tzf backup.tar.gz > /dev/null && echo "Archive verified."
+
+=== Backup Retention ===
+    Remove backups older than 7 days:
+        find /mnt/backup -type f -name "*.tar.gz" -mtime +7 -exec rm {} \;
+
+======================================================================
+
+5. MOUNTING AND UNMOUNTING STORAGE
+----------------
+=== List All Storage Devices ===
+    lsblk
+
+=== Identify Drives and Partitions ===
+    sudo fdisk -l
+
+=== Mount an External Drive ===
+    Example:
+        sudo mkdir -p /mnt/backup
+        sudo mount /dev/sdb1 /mnt/backup
+
+    Confirm mount:
+        df -h | grep /mnt/backup
+
+=== Unmount a Drive Safely ===
+    Always unmount before removing drives:
+        sudo umount /mnt/backup
+
+    Confirm it’s unmounted:
+        lsblk | grep /mnt/backup
+
+=== If "target is busy" Error Appears ===
+    Find processes using the mount:
+        sudo fuser -vm /mnt/backup
+        sudo umount -l /mnt/backup   "lazy unmount"
+
+======================================================================
+
+6. AUTOMATED BACKUP SCRIPT
+----------------
+#!/bin/bash
+# Backup script for headless minimal servers
+
+SOURCE_DIR="/srv/data"
+BACKUP_DIR="/mnt/backup"
+DATE=$(date +'%Y-%m-%d_%H-%M-%S')
+BACKUP_FILE="$BACKUP_DIR/server_backup_$DATE.tar.gz"
+
+# Ensure mount point exists
+mkdir -p "$BACKUP_DIR"
+
+# Mount drive if not already mounted
+mount | grep "$BACKUP_DIR" > /dev/null || sudo mount /dev/sdb1 "$BACKUP_DIR"
+
+# Create backup archive
+tar -cvpzf "$BACKUP_FILE" --exclude="$SOURCE_DIR/tmp" "$SOURCE_DIR"
+
+# Remove backups older than 7 days
+find "$BACKUP_DIR" -type f -name "*.tar.gz" -mtime +7 -exec rm {} \;
+
+# Safely unmount drive after backup
+sudo umount "$BACKUP_DIR"
+
+echo "Backup completed successfully: $BACKUP_FILE"
+
+======================================================================
+
+7. AUTOMATING WITH CRON
+----------------
+=== Edit Crontab ===
+    crontab -e
+
+=== Schedule Daily Backups at 2 AM ===
+    0 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
+
+=== View Scheduled Jobs ===
+    crontab -l
+
+=== View Backup Logs ===
+    cat /var/log/backup.log
+
+======================================================================
+
+8. ENCRYPTION AND SECURITY
+----------------
+=== Encrypt an Archive with GPG ===
+    gpg -c /path/to/backup.tar.gz
+
+    Decrypt:
+        gpg /path/to/backup.tar.gz.gpg
+
+=== Encrypt with OpenSSL AES-256 ===
+    openssl enc -aes-256-cbc -salt -in backup.tar.gz -out backup.tar.gz.enc
+
+    Decrypt:
+        openssl enc -d -aes-256-cbc -in backup.tar.gz.enc -out backup.tar.gz
+
+=== Secure Backup Permissions ===
+    Only allow root or admin to access backup directories:
+        sudo chmod 700 /mnt/backup
+        sudo chown root:root /mnt/backup
+
+======================================================================
+
+9. OFFSITE OR REMOTE BACKUPS
+----------------
+=== Using rsync (SSH-based) ===
+    rsync -avz /mnt/backup/ user@remote-server:/path/to/storage/
+
+=== Using rclone (Cloud Sync) ===
+    rclone sync /mnt/backup remote:server-backups
+
+=== Using SCP (Manual Copy) ===
+    scp /mnt/backup/*.tar.gz user@remote-host:/remote/backup/
+
+======================================================================
+
+10. RESTORING BACKUPS
+----------------
+    Restore archive to a specific directory:
+        sudo tar -xvpzf /mnt/backup/server_backup_2025-10-06.tar.gz -C /restore/path
+
+    Verify restoration:
+        ls /restore/path
+
+======================================================================
+
+11. SPLITTING AND COMBINING LARGE BACKUPS
+----------------
+=== Split Large Archives ===
+    tar -cvzf - /path/to/data | split -b 2G - backup_part.tar.gz_
+
+=== Combine Split Parts ===
+    cat backup_part.tar.gz_* > full_backup.tar.gz
+
+    Extract as usual:
+        tar -xvpzf full_backup.tar.gz -C /restore/path
+
+======================================================================
+
+12. VERIFICATION AND INTEGRITY TESTING
+----------------
+    Verify archive content:
+        tar -tvf backup.tar.gz
+
+    Test extraction without writing files:
+        tar -tzf backup.tar.gz > /dev/null
+
+    Check available disk space before backup:
+        df -h
+
+======================================================================
+
+13. BEST PRACTICES
+----------------
+       Always unmount drives before removal.  
+       Use UUIDs in /etc/fstab for persistent mount points.  
+       Keep backups on a separate disk or remote system.  
+       Test restorations regularly to verify data integrity.  
+       Use encryption for sensitive archives.  
+       Monitor storage space to prevent failed backups.  
+       Exclude temporary files and logs to save space.  
+
+======================================================================
+
+14. TROUBLESHOOTING
+----------------
+=== “Permission Denied” ===
+    Run with sudo for protected directories.
+
+=== “Device Busy” on Unmount ===
+    Identify active processes:
+        sudo lsof /mnt/backup
+    Force unmount if safe:
+        sudo umount -l /mnt/backup
+
+=== “Input/Output Error” During Backup ===
+    Check disk health:
+        sudo dmesg | grep sdb
+        sudo smartctl -a /dev/sdb
+
+=== “Archive Too Large” ===
+    Use split method or external compression:
+        gzip -9 backup.tar
+
+======================================================================
+AUTHOR: Andrew Arabian
+SCHOOL: California State University, Northridge (CSUN)
+======================================================================
+
