@@ -2,6 +2,8 @@
   TUNED & TUNED-UTILS MANUAL (RHEL / FEDORA / CENTOS STREAM)
 ======================================================================
 
+tuned-adm is a cpu tuning tool which is great for server optimizations.
+
 1. INSTALLATION
 ----------------
     sudo dnf install tuned tuned-utils
