@@ -8,17 +8,17 @@
 
 ### Included Manuals
 
-- **System Management** – Fedora setup, diagnostics, Cockpit, Tmux, Vim
+- **System Management** – fedora setup, diagnostics, cockpit, tmux, vim
     
-- **Security & Hardening** – Firewalld, Fail2Ban, SELinux, LUKS encryption
+- **Security & Hardening** – firewalld, fail2Ban, SELinux, LUKS encryption
     
-- **Performance Tuning** – Cpupower, Tuned, and system optimization guides
+- **Performance Tuning** – cpupower, tuned, and system optimization guides
     
-- **Networking & Analysis** – Tcpdump, firewall configuration
+- **Networking & Analysis** – tcpdump, firewall configuration
     
-- **Storage & Compression** – Tar and server compression tools
+- **Storage & Compression** – tar, zip, and other useful compression tools
     
-- **Development Tools** – Git basics, Docker Compose fundamentals
+- **Development Tools** – git basics, docker compose fundamentals
 
 ---
 
