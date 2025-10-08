@@ -1,0 +1,199 @@
+MULLVAD(1)                    User Commands                    MULLVAD(1)
+
+NAME
+       mullvad - Mullvad VPN command-line interface (CLI)
+
+SYNOPSIS
+       mullvad [SUBCOMMAND] [OPTIONS] [ARGS...]
+
+DESCRIPTION
+       Control the Mullvad VPN daemon: authenticate, pick relays, connect,
+       inspect status, tune DNS/filters, split-tunnel apps, and more.
+       Commands work on Linux, macOS, and Windows (where supported).
+
+       Most operations require the Mullvad app/daemon to be installed and
+       running. Run `mullvad` without arguments for a live list of
+       subcommands and flags.  (See EXAMPLES.)
+
+       This page focuses on core/commonly used commands. WireGuard-
+       specific subcommands are included in SEE ALSO.
+
+       Official reference: “How to use the Mullvad CLI”. :contentReference[oaicite:0]{index=0}
+
+ACCOUNT
+       Login with your 16-digit account number:
+           mullvad account login 1234123412341234
+
+       Show account info (ID, device name, expiry):
+           mullvad account get
+
+       List devices on the account:
+           mullvad account list-devices
+
+       (More account-related commands available via `mullvad account`.) :contentReference[oaicite:1]{index=1}
+
+RELAY / LOCATION
+       List available countries/cities:
+           mullvad relay list
+
+       Select location (country + optional city):
+           mullvad relay set location se mma
+
+       Select a specific server:
+           mullvad relay set location se mma se-mma-wg-001
+           # or shorthand
+           mullvad relay set location se-mma-wg-001
+
+       Refresh the server/relay catalog:
+           mullvad relay update :contentReference[oaicite:2]{index=2}
+
+CONNECTIVITY
+       Connect / disconnect:
+           mullvad connect
+           mullvad disconnect
+
+       Status (add -v for verbose details):
+           mullvad status
+           mullvad status -v
+
+       Choose transport and protocol:
+           # Force OpenVPN over TCP (useful behind strict firewalls)
+           mullvad relay set tunnel-protocol openvpn
+           mullvad relay set tunnel openvpn --transport-protocol tcp :contentReference[oaicite:3]{index=3}
+
+AUTOSTART / LAN / KILL SWITCH
+       Auto-connect on system start (CLI-level setting):
+           mullvad auto-connect set on
+           mullvad auto-connect set off
+
+       Allow LAN access while connected:
+           mullvad lan set allow
+
+       Lockdown mode (block ALL traffic until VPN is up):
+           mullvad lockdown-mode set on :contentReference[oaicite:4]{index=4}
+
+IPV6 / TUNNEL
+       Enable in-tunnel IPv6:
+           mullvad tunnel set ipv6 on :contentReference[oaicite:5]{index=5}
+
+DNS & FILTERS
+       DNS content blockers (ads/trackers/malware/etc.):
+           # Show help/available filters
+           mullvad dns set default --help
+
+           # Enable multiple filters (example)
+           mullvad dns set default \
+             --block-ads --block-trackers --block-malware \
+             --block-gambling --block-adult-content
+
+           # Reset to Mullvad default (disable filters)
+           mullvad dns set default
+
+       Custom DNS (WireGuard allows public DNS; OpenVPN supports local):
+           mullvad dns set custom 1.1.1.1
+           mullvad dns set default :contentReference[oaicite:6]{index=6}
+
+BRIDGE MODE (OPENVPN)
+       Enable Shadowsocks-based Bridge mode (restrictive networks):
+           mullvad relay set tunnel-protocol openvpn
+           mullvad relay set tunnel openvpn --transport-protocol tcp
+           mullvad bridge set state on
+
+       Pick a specific bridge:
+           mullvad bridge set location se mma se-mma-br-001
+
+       Return to automatic/non-bridge behavior:
+           mullvad bridge set state auto
+           mullvad relay set tunnel openvpn --transport-protocol any
+           mullvad relay set tunnel-protocol any :contentReference[oaicite:7]{index=7}
+
+CUSTOM SERVER LISTS
+       Create curated lists (e.g., “Favorites”) of countries/cities/servers:
+           mullvad custom-list
+           mullvad custom-list new Favorites
+           mullvad custom-list edit add Favorites se-mma-wg-001
+           mullvad custom-list edit add Favorites se got
+           mullvad custom-list edit add Favorites se
+           mullvad custom-list list
+           mullvad custom-list edit rename Favorites Favourites
+           mullvad custom-list edit remove Favorites se
+           mullvad custom-list delete Favourites
+
+       Use a custom list when connecting:
+           mullvad relay set custom-list Favorites :contentReference[oaicite:8]{index=8}
+
+SPLIT TUNNELING
+       Linux (two methods):
+         1) Launch a program outside the tunnel:
+              mullvad-exclude <program>
+              # e.g., run a connectivity check outside VPN:
+              mullvad-exclude curl https://am.i.mullvad.net/connected
+
+         2) Manage existing processes by PID:
+              mullvad split-tunnel add <pid>
+              mullvad split-tunnel list
+              mullvad split-tunnel delete <pid>
+              mullvad split-tunnel clear
+
+       Windows:
+              mullvad split-tunnel get
+              mullvad split-tunnel set on|off
+              mullvad split-tunnel app add "C:\Path\to\App.exe"
+              mullvad split-tunnel app remove "C:\Path\to\App.exe"
+              mullvad split-tunnel app clear :contentReference[oaicite:9]{index=9}
+
+TROUBLESHOOTING / RESET
+       Generate and (optionally) send an anonymized problem report:
+           mullvad-problem-report collect --output report.log
+           mullvad-problem-report send \
+             --report report.log \
+             --email your@email.address \
+             --message "Describe the issue"
+
+       Factory reset (logs out, clears settings/logs/cache):
+           mullvad factory-reset  (will prompt to confirm) :contentReference[oaicite:10]{index=10}
+
+COMMON WORKFLOWS
+       First-time setup (login → choose server → connect):
+           mullvad account login 1234123412341234
+           mullvad relay list
+           mullvad relay set location us sfo
+           mullvad connect
+           mullvad status
+
+       Tight network (force OpenVPN/TCP and enable Bridge):
+           mullvad relay set tunnel-protocol openvpn
+           mullvad relay set tunnel openvpn --transport-protocol tcp
+           mullvad bridge set state on
+           mullvad connect
+
+       “VPN on boot”, allow LAN, plus basic filtering:
+           mullvad auto-connect set on
+           mullvad lan set allow
+           mullvad dns set default --block-ads --block-trackers --block-malware
+
+WIREGUARD-SPECIFIC COMMANDS
+       For WG operations (keys, endpoints, etc.), see:
+           “CLI commands for using WireGuard”. :contentReference[oaicite:11]{index=11}
+
+FILES
+       The CLI communicates with the Mullvad daemon/service. Logs and state
+       are managed by the app; use the built-in problem-report tool when
+       opening support tickets. :contentReference[oaicite:12]{index=12}
+
+EXIT STATUS
+       Non-zero on error. Use `-v` (where available) or collect a problem
+       report for diagnostics.
+
+SEE ALSO
+       mullvad(1) live help:  run `mullvad` with no args
+       Mullvad CLI how-to (official)   — core commands & examples. :contentReference[oaicite:13]{index=13}
+       Mullvad WireGuard CLI guide     — WG-specific commands.     :contentReference[oaicite:14]{index=14}
+
+NOTES
+       • Some features are OS-specific (e.g., split-tunneling methods).
+       • When filters or custom DNS don’t appear to apply, confirm the
+         active protocol and DNS mode (`mullvad dns …`, `status -v`). :contentReference[oaicite:15]{index=15}
+
+
+Mullvad VPN                        May 2025                        MULLVAD(1)
