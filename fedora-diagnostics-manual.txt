@@ -1,12 +1,14 @@
-======================================================================
+---
+
   FEDORA/RHEL CLI DIAGNOSTICS & SYSADMIN MANUAL
-======================================================================
+
+---
 
 A compact reference of built-in Fedora/RHEL CLI tools for diagnostics,
 monitoring, and first-level sysadmin triage (CPU, memory, disk, network,
 SELinux, logs, and baseline collection). :contentReference[oaicite:0]{index=0}
 
-======================================================================
+---
 
 1. COMMON DIAGNOSTICS COMMANDS
 ----------------
